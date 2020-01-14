@@ -1,5 +1,7 @@
 #include "DumpTriggerTimestamps.h"
 
+#include <sstream>
+
 DumpTriggerTimestamps::DumpTriggerTimestamps():Tool(){}
 
 
@@ -20,14 +22,15 @@ bool DumpTriggerTimestamps::Initialise(std::string configfile, DataModel &data){
 
 
 bool DumpTriggerTimestamps::Execute(){
-  Log("DTT");
   if (m_data->CStore.Has("TrigData")) {  
+    Log("DTT");
     TriggerData td;
     m_data->CStore.Get("TrigData",td);
     cout << td.TimeStampSize << endl;
     outf.write((char*)td.TimeStampData.data(),td.TimeStampData.size()*sizeof(uint32_t));
-  }else{
-    m_data->vars.Set("StopLoop",1);
+    if (td.FIFOOverflow > 0) {
+      Log("FIFO Overflow");
+    }
   }
   return true;
 }
